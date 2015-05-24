@@ -154,9 +154,7 @@ public class Engine {
 			entityOperations.add(operation);
 		}
 		else {
-			while(entities.size > 0) {
-				removeEntity(entities.first());
-			}
+			removeAllEntitiesInternal();
 		}
 	}
 
@@ -348,6 +346,13 @@ public class Engine {
 		notifying = false;
 	}
 
+	protected void removeAllEntitiesInternal() {
+		while(entities.size > 0) {
+			removeEntityInternal(entities.first());
+			processPendingEntityOperations();
+		}
+	}
+
 	private void notifyFamilyListenersAdd(Family family, Entity entity) {
 		SnapshotArray<EntityListener> listeners = familyListeners.get(family);
 
@@ -405,11 +410,7 @@ public class Engine {
 			switch(operation.type) {
 				case Add: addEntityInternal(operation.entity); break;
 				case Remove: removeEntityInternal(operation.entity); break;
-				case RemoveAll:
-					while(entities.size > 0) {
-						removeEntityInternal(entities.first());
-					}
-					break;
+				case RemoveAll: removeAllEntitiesInternal(); break;
 				default:
 					throw new AssertionError("Unexpected EntityOperation type");
 			}
